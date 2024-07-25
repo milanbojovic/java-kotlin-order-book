@@ -17,12 +17,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.ArrayList;
-import java.util.Collections;
-
 import static com.valr.orderbook.util.TestHelper.createOrderBook;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -51,7 +48,7 @@ public class WebControllerTest {
     }
 
     @Test
-    public void getOrderBookWithValidCurrencyPairReturnsOrderBook() throws Exception {
+    public void get_orderbook_with_valid_currency_pair_returns_orderbook() throws Exception {
         OrderBook orderBook = createOrderBook();
         when(orderBookService.getOrderBookBy(anyString())).thenReturn(orderBook);
         MvcResult mvcResult = mockMvc.perform(get("/api/BTCZAR/orderbook")
@@ -64,7 +61,7 @@ public class WebControllerTest {
     }
 
     @Test
-    public void getOrderBookWithInvalidCurrencyPairReturnsError() throws Exception {
+    public void get_orderbook_with_invalid_currency_pair_returns_error() throws Exception {
         MvcResult mvcResult = mockMvc.perform(get("/api/BTCZAR1/orderbook")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
@@ -75,7 +72,7 @@ public class WebControllerTest {
     }
 
     @Test
-    public void getOrderBookWithSpecialCharacterInCurrencyPairError() throws Exception {
+    public void get_orderbook_with_special_character_in_currency_pair_error() throws Exception {
         MvcResult mvcResult = mockMvc.perform(get("/api/BTC@AR/orderbook")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
@@ -85,24 +82,36 @@ public class WebControllerTest {
                 "Please provide a 6 character currency pair - valid example: BTCZAR | btczar.\"}");
     }
 
-
     @Test
-    public void getTradeHistoryWithValidParametersReturnsTradeHistory() throws Exception {
+    public void get_tradehistory_with_valid_parameters_returns_tradehistory() throws Exception {
         TradeHistory tradeHistory = TradeHistory.builder().build();
-        when(tradeHistoryService.getTradeHistoryBy("BTCZAR", 0, 10)).thenReturn(tradeHistory);
+        when(tradeHistoryService.getTradeHistoryBy(anyString(), anyInt(), anyInt())).thenReturn(tradeHistory);
         MvcResult mvcResult = mockMvc.perform(get("/api/BTCZAR/tradehistory")
-                        .param("skip", "0")
-                        .param("limit", "10")
+                        .param("skip", "5")
+                        .param("limit", "17")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
         String actualResponse = mvcResult.getResponse().getContentAsString();
         assertThat(actualResponse).isEqualToIgnoringWhitespace(objectMapper.writeValueAsString(tradeHistory));
-        verify(tradeHistoryService).getTradeHistoryBy("BTCZAR", 0, 10);
+        verify(tradeHistoryService).getTradeHistoryBy(eq("BTCZAR"), eq(5), eq(17));
     }
 
     @Test
-    public void getTradeHistoryWithInvalidCurrencyPairReturnsError() throws Exception {
+    public void get_tradehistory_withhout_limit_and_skip_parames_calls_with_defaults() throws Exception {
+        TradeHistory tradeHistory = TradeHistory.builder().build();
+        when(tradeHistoryService.getTradeHistoryBy(anyString(), anyInt(), anyInt())).thenReturn(tradeHistory);
+        MvcResult mvcResult = mockMvc.perform(get("/api/BTCZAR/tradehistory")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+        String actualResponse = mvcResult.getResponse().getContentAsString();
+        assertThat(actualResponse).isEqualToIgnoringWhitespace(objectMapper.writeValueAsString(tradeHistory));
+        verify(tradeHistoryService).getTradeHistoryBy(eq("BTCZAR"), eq(0), eq(10));
+    }
+
+    @Test
+    public void get_tradehistory_with_invalid_currency_pair_returns_error() throws Exception {
         MvcResult mvcResult = mockMvc.perform(get("/api/BTC@AR/tradehistory")
                         .param("skip", "0")
                         .param("limit", "10")
@@ -115,7 +124,7 @@ public class WebControllerTest {
     }
 
     @Test
-    public void getTradeHistoryWithNegativeSkipReturnsError() throws Exception {
+    public void get_tradehistory_with_negative_skip_returns_error() throws Exception {
         MvcResult mvcResult = mockMvc.perform(get("/api/BTCZAR/tradehistory")
                         .param("skip", "-1")
                         .param("limit", "10")
@@ -128,7 +137,7 @@ public class WebControllerTest {
     }
 
     @Test
-    public void getTradeHistoryWithNegativeLimitReturnsError() throws Exception {
+    public void get_tradehistory_with_negative_limit_returns_error() throws Exception {
         MvcResult mvcResult = mockMvc.perform(get("/api/BTCZAR/tradehistory")
                         .param("skip", "0")
                         .param("limit", "-1")
@@ -141,7 +150,7 @@ public class WebControllerTest {
     }
 
     @Test
-    public void getTradeHistoryWithLimitExceedingMaxReturnsError() throws Exception {
+    public void get_tradehistory_with_limit_exceeding_max_returns_error() throws Exception {
         MvcResult mvcResult = mockMvc.perform(get("/api/BTCZAR/tradehistory")
                         .param("skip", "0")
                         .param("limit", "101")

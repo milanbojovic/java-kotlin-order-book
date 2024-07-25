@@ -1,4 +1,4 @@
-package com.valr.orderbook.model;
+package com.valr.orderbook.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
