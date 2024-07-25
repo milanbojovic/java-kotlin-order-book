@@ -1,5 +1,6 @@
 package com.valr.orderbook.service;
 
+import com.valr.orderbook.model.LimitOrderDTO;
 import com.valr.orderbook.model.Order;
 import com.valr.orderbook.model.OrderBook;
 import com.valr.orderbook.repository.OrderBookRepository;
@@ -16,17 +17,15 @@ public class OrderBookService {
         this.orderBookRepository = orderBookRepository;
     }
 
-    public OrderBook getOrderBook(String currencyPair) {
-        return orderBookRepository.filterByCurrencyPair(currencyPair.toUpperCase());
+    public OrderBook getOrderBookBy(String currencyPair) {
+        return orderBookRepository.filterOrderBookBy(currencyPair.toUpperCase());
     }
 
     public void updateOrderBook(OrderBook orderBook) {
-        sortLists(orderBook);
-        orderBookRepository.updateOrderBook(orderBook);
+        orderBookRepository.setOrderBook(orderBook);
     }
 
-    private static void sortLists(OrderBook orderBook) {
-        orderBook.setBids(orderBook.getBids().stream().sorted(Order::compareTo).toList());
-        orderBook.setAsks(orderBook.getAsks().stream().sorted(Order::compareTo).toList());
+    public Order createLimitOrder(LimitOrderDTO limitOrderDTO) {
+        return orderBookRepository.createOrder(new Order(limitOrderDTO));
     }
 }

@@ -1,8 +1,11 @@
 package com.valr.orderbook.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.valr.orderbook.model.LimitOrderDTO;
+import com.valr.orderbook.model.Order;
 import com.valr.orderbook.model.OrderBook;
 import com.valr.orderbook.model.TradeHistory;
+import com.valr.orderbook.model.enumeration.Side;
 import com.valr.orderbook.service.OrderBookService;
 import com.valr.orderbook.service.TradeHistoryService;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,12 +20,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import static com.valr.orderbook.util.TestHelper.createOrder;
 import static com.valr.orderbook.util.TestHelper.createOrderBook;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -80,6 +84,58 @@ public class WebControllerTest {
         String actualResponse = mvcResult.getResponse().getContentAsString();
         assertThat(actualResponse).isEqualToIgnoringWhitespace("{\"code\":-21,\"message\":\"Invalid currency pair. " +
                 "Please provide a 6 character currency pair - valid example: BTCZAR | btczar.\"}");
+    }
+
+    @Test
+    public void create_limit_order_with_valid_data_returns_success() throws Exception {
+        LimitOrderDTO limitOrder = new LimitOrderDTO(Side.SELL, 0.5, 100, "BTCZAR");
+        Order executedOrder = createOrder(Side.SELL, 0.5, 100, "BTCZAR");
+        when(orderBookService.createLimitOrder(any())).thenReturn(executedOrder);
+
+        MvcResult mvcResult = mockMvc.perform(post("/api/order/limit")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(limitOrder)))
+                .andExpect(status().isOk())
+                .andReturn();
+        String actualResponse = mvcResult.getResponse().getContentAsString();
+        assertThat(actualResponse).isEqualToIgnoringWhitespace("Limit order created successfully.");
+        verify(orderBookService).createLimitOrder(any(LimitOrderDTO.class));
+        verify(tradeHistoryService).addTradeOrder(executedOrder);
+    }
+
+    @Test
+    public void create_limit_order_with_valid_data_but_no_executed_order_returns_success() throws Exception {
+        LimitOrderDTO limitOrder = new LimitOrderDTO(Side.SELL, 0.5, 100, "BTCZAR");
+        when(orderBookService.createLimitOrder(any())).thenReturn(null);
+
+        MvcResult mvcResult = mockMvc.perform(post("/api/order/limit")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(limitOrder)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String actualResponse = mvcResult.getResponse().getContentAsString();
+        assertThat(actualResponse).isEqualToIgnoringWhitespace("Limit order created successfully.");
+        verify(orderBookService).createLimitOrder(any(LimitOrderDTO.class));
+        verify(tradeHistoryService, never()).addTradeOrder(any(Order.class));
+    }
+
+    @Test
+    public void create_limit_order_with_invalid_data_returns_bad_request() throws Exception {
+        LimitOrderDTO limitOrder = new LimitOrderDTO(Side.SELL, 0,0, "BTCZAR");
+
+        MvcResult mvcResult = mockMvc.perform(post("/api/order/limit")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(limitOrder)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        String actualResponse = mvcResult.getResponse().getContentAsString();
+        assertThat(actualResponse).isEqualToIgnoringWhitespace("{\"code\":-23,\"message\":\"Invalid limitOrder." +
+                " Please provide a 6 character currency pair - valid example: BTCZAR | btczar.\\nQuantity and price " +
+                "must be greater than 0.\\nSide must be either 'BUY' or 'SELL'.\"}");
+        verify(orderBookService, never()).createLimitOrder(any(LimitOrderDTO.class));
+        verify(tradeHistoryService, never()).addTradeOrder(any(Order.class));
     }
 
     @Test

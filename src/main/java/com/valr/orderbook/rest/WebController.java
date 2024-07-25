@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.util.regex.Pattern;
@@ -33,6 +34,20 @@ public class WebController {
                     "Please provide a 6 character currency pair - valid example: BTCZAR | btczar."));
         }
         return ResponseEntity.ok().body(orderBookService.getOrderBookBy(currencyPair));
+    }
+
+    @PostMapping("/order/limit")
+    public ResponseEntity<Object> createLimitOrder(@Valid @RequestBody LimitOrderDTO limitOrder) {
+        if (!limitOrder.getCurrencyPair().matches("[A-Za-z]{6}") || limitOrder.getQuantity() <= 0 || limitOrder.getPrice() <= 0) {
+            return ResponseEntity.badRequest().body(new Error(-23, "Invalid limitOrder. " +
+                    "Please provide a 6 character currency pair - valid example: BTCZAR | btczar.\n" +
+                    "Quantity and price must be greater than 0.\n" + "Side must be either 'BUY' or 'SELL'."));
+        }
+        Order executedOrder = orderBookService.createLimitOrder(limitOrder);
+        if (executedOrder != null) {
+            tradeHistoryService.addTradeOrder(executedOrder);
+        }
+        return ResponseEntity.ok().body("Limit order created successfully.");
     }
 
     @GetMapping("{currencyPair}/tradehistory")
