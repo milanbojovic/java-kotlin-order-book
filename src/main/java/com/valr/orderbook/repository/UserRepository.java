@@ -25,21 +25,16 @@ public class UserRepository {
     }
 
     private void createSystemUsers(List<User> users) {
-        users.add(User.builder()
-                .firstName("Administrator")
-                .lastName("Administrator")
-                .email("admin@valr.com")
-                .username("admin")
-                .password("admin")
-                .build());
-
+        users.add(new User("Administrator", "Administrator", "admin@valr.com",
+                "admin", "admin"));
     }
 
     public Optional<User> login(String username, String password) {
         Optional<User> user = users.stream()
                 .filter(u -> u.getUsername().equals(username) && u.getPassword().equals(password))
                 .findFirst();
-        System.out.println("User " + user.map(value -> value.getUsername() + " logged in successfully").orElse(" failed to login"));
+        System.out.println("User " + user.map(value -> value.getUsername() + " logged in successfully")
+                .orElse(" failed to login"));
         return user;
     }
 }

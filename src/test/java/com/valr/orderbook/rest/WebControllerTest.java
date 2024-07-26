@@ -1,11 +1,9 @@
 package com.valr.orderbook.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.valr.orderbook.model.LimitOrderDTO;
-import com.valr.orderbook.model.Order;
-import com.valr.orderbook.model.OrderBook;
-import com.valr.orderbook.model.TradeHistory;
+import com.valr.orderbook.model.*;
 import com.valr.orderbook.model.enumeration.Side;
+import com.valr.orderbook.security.JwtUtil;
 import com.valr.orderbook.service.OrderBookService;
 import com.valr.orderbook.service.TradeHistoryService;
 import com.valr.orderbook.service.UserService;
@@ -21,6 +19,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.Optional;
+
 import static com.valr.orderbook.util.TestHelper.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.*;
@@ -34,16 +34,18 @@ public class WebControllerTest {
 
     public static final String SKIP = "skip";
     public static final String LIMIT = "limit";
+
+    @Mock
+    private JwtUtil jwtUtil;
     @Mock
     private OrderBookService orderBookService;
     @Mock
     private TradeHistoryService tradeHistoryService;
-
     @Mock
     private UserService userService;
-
     @InjectMocks
     private WebController webController;
+
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -52,8 +54,62 @@ public class WebControllerTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-        webController = new WebController(orderBookService, tradeHistoryService, userService);
+        webController = new WebController(orderBookService, tradeHistoryService, userService, jwtUtil);
         mockMvc = MockMvcBuilders.standaloneSetup(webController).build();
+    }
+
+    @Test
+    public void login_with_valid_credentials_returns_token() throws Exception {
+        when(jwtUtil.generateToken(anyString())).thenReturn("mockToken");
+        when(userService.login(anyString(), anyString())).thenReturn(Optional.of(createTestUser()));
+
+        MvcResult mvcResult = mockMvc.perform(post("/api/user/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new UserDTO("admin", "admin"))))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String actualResponse = mvcResult.getResponse().getContentAsString();
+        assertThat(actualResponse).contains("Bearer", "mockToken");
+    }
+
+    private static User createTestUser() {
+        return new User("John", "Doe", "john.doe@valr.com", "john.doe", "pass");
+    }
+
+    @Test
+    public void login_with_invalid_credentials_returns_unauthorized() throws Exception {
+        when(userService.login(anyString(), anyString())).thenReturn(Optional.empty());
+        MvcResult mvcResult = mockMvc.perform(post("/api/user/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new UserDTO("admin1", "admin1"))))
+                .andExpect(status().isUnauthorized())
+                .andReturn();
+        String actualResponse = mvcResult.getResponse().getContentAsString();
+        assertThat(actualResponse).contains("Invalid username or password.");
+    }
+
+    @Test
+    public void login_with_null_username_returns_bad_request() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(post("/api/user/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new UserDTO(null, "admin"))))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        String actualResponse = mvcResult.getResponse().getContentAsString();
+        assertThat(actualResponse).contains("Invalid login request. Please provide a username and password.");
+    }
+
+    @Test
+    public void login_with_null_pass_returns_bad_request() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(post("/api/user/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new UserDTO("admin", null))))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        String actualResponse = mvcResult.getResponse().getContentAsString();
+        assertThat(actualResponse).contains("Invalid login request. Please provide a username and password.");
     }
 
     @Test

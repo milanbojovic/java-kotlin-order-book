@@ -1,10 +1,12 @@
 package com.valr.orderbook.model;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class User {
     private String firstName;
     private String lastName;

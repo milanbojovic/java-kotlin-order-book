@@ -4,6 +4,7 @@ import com.valr.orderbook.exception.Error;
 import com.valr.orderbook.model.LimitOrderDTO;
 import com.valr.orderbook.model.Order;
 import com.valr.orderbook.model.User;
+import com.valr.orderbook.model.UserDTO;
 import com.valr.orderbook.security.JwtUtil;
 import com.valr.orderbook.service.OrderBookService;
 import com.valr.orderbook.service.TradeHistoryService;
@@ -39,17 +40,23 @@ public class WebController {
     private final TradeHistoryService tradeHistoryService;
 
     @Autowired
-    public WebController(OrderBookService orderBookService, TradeHistoryService tradeHistoryService, UserService userService) {
+    public WebController(OrderBookService orderBookService, TradeHistoryService tradeHistoryService, UserService userService, JwtUtil jwtUtil) {
         this.orderBookService = orderBookService;
         this.tradeHistoryService = tradeHistoryService;
         this.userService = userService;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/user/login")
-    public ResponseEntity<Object> loginUser(@RequestBody User userDto) {
+    public ResponseEntity<Object> loginUser(@RequestBody UserDTO userDto) {
+        if (userDto.getUsername() == null || userDto.getPassword() == null){
+            return ResponseEntity.badRequest().body(new Error(-25, "Invalid login request. " +
+                    "Please provide a username and password."));
+        }
         Optional<User> optUser = userService.login(userDto.getUsername(), userDto.getPassword());
         if (optUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Error(-24, "Invalid username or password."));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Error(-24, "Invalid username " +
+                    "or password."));
         } else {
             User existingUser = optUser.get();
             Map<String, String> response = new HashMap<>();
@@ -70,7 +77,8 @@ public class WebController {
 
     @PostMapping("/order/limit")
     public ResponseEntity<Object> createLimitOrder(@Valid @RequestBody LimitOrderDTO limitOrder) {
-        if (!limitOrder.getCurrencyPair().matches(CURRENCY_PAIR_PATTERN) || limitOrder.getQuantity() <= 0 || limitOrder.getPrice() <= 0) {
+        if (!limitOrder.getCurrencyPair().matches(CURRENCY_PAIR_PATTERN) || limitOrder.getQuantity() <= 0 ||
+                limitOrder.getPrice() <= 0) {
             return ResponseEntity.badRequest().body(new Error(-23, """
                     Invalid limitOrder. Please provide a 6 character currency pair - valid example: BTCZAR | btczar.
                     Quantity and price must be greater than 0.
