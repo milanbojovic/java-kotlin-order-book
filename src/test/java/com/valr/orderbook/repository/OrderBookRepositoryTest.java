@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 
+import static com.valr.orderbook.util.TestHelper.BTC_ZAR;
 import static com.valr.orderbook.util.TestHelper.createOrdersList;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,14 +33,14 @@ class OrderBookRepositoryTest {
                 .asks(asks).bids(bids).build();
         orderBookRepository.setOrderBook(orderBook);
 
-        OrderBook result = orderBookRepository.filterOrderBookBy("BTCZAR");
+        OrderBook result = orderBookRepository.filterOrderBookBy(BTC_ZAR);
         assertEquals(2, result.getAsks().size());
         assertEquals(2, result.getBids().size());
     }
 
     @Test
     void create_order_buy_side_no_match_adds_to_order_book() {
-        Order order = new Order(Side.BUY, 0.5, 100, "BTCZAR");
+        Order order = new Order(Side.BUY, 0.5, 100, BTC_ZAR);
         Order result = orderBookRepository.createOrder(order);
 
         assertNull(result);
@@ -48,7 +49,7 @@ class OrderBookRepositoryTest {
 
     @Test
     void create_order_sell_side_no_match_adds_to_order_book() {
-        Order order = new Order(Side.SELL, 0.5, 100, "BTCZAR");
+        Order order = new Order(Side.SELL, 0.5, 100, BTC_ZAR);
         Order result = orderBookRepository.createOrder(order);
 
         assertNull(result);
@@ -57,8 +58,8 @@ class OrderBookRepositoryTest {
 
     @Test
     void create_order_buy_side_full_match_order_removed() {
-        Order order = new Order(Side.BUY, 0.5, 100, "BTCZAR");
-        Order matchedOrder = new Order(Side.SELL, 0.5, 100, "BTCZAR");
+        Order order = new Order(Side.BUY, 0.5, 100, BTC_ZAR);
+        Order matchedOrder = new Order(Side.SELL, 0.5, 100, BTC_ZAR);
 
         orderBookRepository.createOrder(matchedOrder);
         assertTrue(orderBookRepository.getOrderBook().getAsks().contains(matchedOrder));
@@ -70,8 +71,8 @@ class OrderBookRepositoryTest {
 
     @Test
     void create_order_sell_side_full_match_order_removed() {
-        Order order = new Order(Side.SELL, 0.5, 100, "BTCZAR");
-        Order matchedOrder = new Order(Side.BUY, 0.5, 100, "BTCZAR");
+        Order order = new Order(Side.SELL, 0.5, 100, BTC_ZAR);
+        Order matchedOrder = new Order(Side.BUY, 0.5, 100, BTC_ZAR);
 
         orderBookRepository.createOrder(matchedOrder);
         assertTrue(orderBookRepository.getOrderBook().getBids().contains(matchedOrder));
@@ -83,8 +84,8 @@ class OrderBookRepositoryTest {
 
     @Test
     void create_order_buy_side_partial_match_updates_quantity() {
-        Order order = new Order(Side.BUY, 0.5, 100, "BTCZAR");
-        Order matchedOrder = new Order(Side.SELL, 1.0, 100, "BTCZAR");
+        Order order = new Order(Side.BUY, 0.5, 100, BTC_ZAR);
+        Order matchedOrder = new Order(Side.SELL, 1.0, 100, BTC_ZAR);
 
         orderBookRepository.createOrder(matchedOrder);
         Order result = orderBookRepository.createOrder(order);
@@ -96,8 +97,8 @@ class OrderBookRepositoryTest {
 
     @Test
     void create_order_sell_side_partial_match_updates_quantity() {
-        Order order = new Order(Side.SELL, 0.5, 100, "BTCZAR");
-        Order matchedOrder = new Order(Side.BUY, 1.0, 100, "BTCZAR");
+        Order order = new Order(Side.SELL, 0.5, 100, BTC_ZAR);
+        Order matchedOrder = new Order(Side.BUY, 1.0, 100, BTC_ZAR);
 
         orderBookRepository.createOrder(matchedOrder);
         Order result = orderBookRepository.createOrder(order);
@@ -109,8 +110,8 @@ class OrderBookRepositoryTest {
 
     @Test
     void create_order_buy_side_same_price_groups_orders() {
-        Order order = new Order(Side.BUY, 0.5, 100, "BTCZAR");
-        Order existingOrder = new Order(Side.BUY, 0.5, 100, "BTCZAR");
+        Order order = new Order(Side.BUY, 0.5, 100, BTC_ZAR);
+        Order existingOrder = new Order(Side.BUY, 0.5, 100, BTC_ZAR);
 
         orderBookRepository.createOrder(existingOrder);
         Order result = orderBookRepository.createOrder(order);
@@ -122,8 +123,8 @@ class OrderBookRepositoryTest {
 
     @Test
     void create_order_sell_side_same_price_groups_orders() {
-        Order order = new Order(Side.SELL, 0.5, 100, "BTCZAR");
-        Order existingOrder = new Order(Side.SELL, 0.5, 100, "BTCZAR");
+        Order order = new Order(Side.SELL, 0.5, 100, BTC_ZAR);
+        Order existingOrder = new Order(Side.SELL, 0.5, 100, BTC_ZAR);
 
         orderBookRepository.createOrder(existingOrder);
         Order result = orderBookRepository.createOrder(order);

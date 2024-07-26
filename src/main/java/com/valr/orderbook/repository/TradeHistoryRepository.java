@@ -12,6 +12,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.valr.orderbook.model.util.CurrencyPairConstants.*;
+
 @Component
 @Data
 public class TradeHistoryRepository {
@@ -52,17 +54,17 @@ public class TradeHistoryRepository {
     private List<Trade> createExampleTradesList(TradeHistory tradeHistory) {
         List<Trade> trades = new LinkedList<>();
         tradeHistory.setTrades(trades);
-        trades.add(new Trade(getNextAvailableId(),1199677, 0.00213752, "BTCEUR", "2024-07-11T08:50:12.453Z", Side.SELL, 2564.33358104));
-        trades.add(new Trade(getNextAvailableId(),1200677, 0.03225700, "BTCUSD", "2024-08-10T09:22:15.363Z", Side.SELL, 38730.237989));
-        trades.add(new Trade(getNextAvailableId(),1230650, 0.00456120, "ETHZAR", "2024-09-15T18:32:16.363Z", Side.SELL, 5613.24078));
-        trades.add(new Trade(getNextAvailableId(),1358400, 0.75689132, "ETHEUR", "2024-10-17T14:22:18.433Z", Side.SELL, 1028161.169088));
-        trades.add(new Trade(getNextAvailableId(),1005522, 2.56879135, "ETHUSD", "2024-11-19T03:52:17.413Z", Side.SELL, 2582976.2158347));
-        trades.add(new Trade(getNextAvailableId(),1015459, 0.56879135, "BTCZAR", "2022-10-11T13:44:24.571Z", Side.SELL, 570680.8748647));
-        trades.add(new Trade(getNextAvailableId(),5168975, 0.56879135, "BTCZAR", "2022-10-11T13:44:24.571Z", Side.SELL, 570680.8748647));
-        trades.add(new Trade(getNextAvailableId(),2159877, 0.56879135, "BTCZAR", "2022-10-11T13:44:24.571Z", Side.SELL, 570680.8748647));
-        trades.add(new Trade(getNextAvailableId(),1111115, 0.56879135, "BTCZAR", "2022-10-11T13:44:24.571Z", Side.SELL, 570680.8748647));
-        trades.add(new Trade(getNextAvailableId(),2222222, 0.56879135, "BTCZAR", "2022-10-11T13:44:24.571Z", Side.SELL, 570680.8748647));
-        trades.add(new Trade(getNextAvailableId(),4567895, 0.56879135, "BTCZAR", "2022-10-11T13:44:24.571Z", Side.SELL, 570680.8748647));
+        trades.add(new Trade(getNextAvailableId(),1199677, 0.00213752, BTC_EUR, "2024-07-11T08:50:12.453Z", Side.SELL, 2564.33358104));
+        trades.add(new Trade(getNextAvailableId(),1200677, 0.03225700, BTC_USD, "2024-08-10T09:22:15.363Z", Side.SELL, 38730.237989));
+        trades.add(new Trade(getNextAvailableId(),1230650, 0.00456120, ETH_ZAR, "2024-09-15T18:32:16.363Z", Side.SELL, 5613.24078));
+        trades.add(new Trade(getNextAvailableId(),1358400, 0.75689132, ETH_EUR, "2024-10-17T14:22:18.433Z", Side.SELL, 1028161.169088));
+        trades.add(new Trade(getNextAvailableId(),1005522, 2.56879135, ETH_USD, "2024-11-19T03:52:17.413Z", Side.SELL, 2582976.2158347));
+        trades.add(new Trade(getNextAvailableId(),1015459, 0.56879135, BTC_ZAR, "2022-10-11T13:44:24.571Z", Side.SELL, 570680.8748647));
+        trades.add(new Trade(getNextAvailableId(),5168975, 0.56879135, BTC_ZAR, "2022-10-11T13:44:24.571Z", Side.SELL, 570680.8748647));
+        trades.add(new Trade(getNextAvailableId(),2159877, 0.56879135, BTC_ZAR, "2022-10-11T13:44:24.571Z", Side.SELL, 570680.8748647));
+        trades.add(new Trade(getNextAvailableId(),1111115, 0.56879135, BTC_ZAR, "2022-10-11T13:44:24.571Z", Side.SELL, 570680.8748647));
+        trades.add(new Trade(getNextAvailableId(),2222222, 0.56879135, BTC_ZAR, "2022-10-11T13:44:24.571Z", Side.SELL, 570680.8748647));
+        trades.add(new Trade(getNextAvailableId(),4567895, 0.56879135, BTC_ZAR, "2022-10-11T13:44:24.571Z", Side.SELL, 570680.8748647));
         return trades;
     }
 }

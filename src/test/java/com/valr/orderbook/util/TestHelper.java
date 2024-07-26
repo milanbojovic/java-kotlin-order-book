@@ -8,6 +8,11 @@ import java.util.Arrays;
 import java.util.List;
 
 public class TestHelper {
+    public static final String BTC_EUR = "BTCEUR";
+    public static final String BTC_ZAR = "BTCZAR";
+    public static final String BTC_USD = "BTCUSD";
+    public static final String ETH_EUR = "ETHEUR";
+    public static final String LTC_USD = "LTCUSD";
 
     public static OrderBook createOrderBook() {
         return OrderBook.builder()
@@ -18,9 +23,9 @@ public class TestHelper {
 
     public static List<Order> createOrdersList(Side side) {
         return Arrays.asList(
-                new Order(side, 1.0, 1, "BTCZAR"),
-                new Order(side, 2.0, 2, "BTCEUR"),
-                new Order(side, 3.0, 3, "BTCZAR")
+                new Order(side, 1.0, 1, BTC_ZAR),
+                new Order(side, 2.0, 2, BTC_EUR),
+                new Order(side, 3.0, 3, BTC_ZAR)
         );
     }
 

@@ -8,6 +8,7 @@ import com.valr.orderbook.model.TradeHistory;
 import com.valr.orderbook.model.enumeration.Side;
 import com.valr.orderbook.service.OrderBookService;
 import com.valr.orderbook.service.TradeHistoryService;
+import com.valr.orderbook.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -20,8 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static com.valr.orderbook.util.TestHelper.createOrder;
-import static com.valr.orderbook.util.TestHelper.createOrderBook;
+import static com.valr.orderbook.util.TestHelper.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -32,10 +32,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 public class WebControllerTest {
 
+    public static final String SKIP = "skip";
+    public static final String LIMIT = "limit";
     @Mock
     private OrderBookService orderBookService;
     @Mock
     private TradeHistoryService tradeHistoryService;
+
+    @Mock
+    private UserService userService;
 
     @InjectMocks
     private WebController webController;
@@ -47,7 +52,7 @@ public class WebControllerTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-        webController = new WebController(orderBookService, tradeHistoryService);
+        webController = new WebController(orderBookService, tradeHistoryService, userService);
         mockMvc = MockMvcBuilders.standaloneSetup(webController).build();
     }
 
@@ -61,7 +66,7 @@ public class WebControllerTest {
                 .andReturn();
         String actualResponse = mvcResult.getResponse().getContentAsString();
         assertThat(actualResponse).isEqualToIgnoringWhitespace(objectMapper.writeValueAsString(orderBook));
-        verify(orderBookService).getOrderBookBy("BTCZAR");
+        verify(orderBookService).getOrderBookBy(BTC_ZAR);
     }
 
     @Test
@@ -88,8 +93,8 @@ public class WebControllerTest {
 
     @Test
     public void create_limit_order_with_valid_data_returns_success() throws Exception {
-        LimitOrderDTO limitOrder = new LimitOrderDTO(Side.SELL, 0.5, 100, "BTCZAR");
-        Order executedOrder = createOrder(Side.SELL, 0.5, 100, "BTCZAR");
+        LimitOrderDTO limitOrder = new LimitOrderDTO(Side.SELL, 0.5, 100, BTC_ZAR);
+        Order executedOrder = createOrder(Side.SELL, 0.5, 100, BTC_ZAR);
         when(orderBookService.createLimitOrder(any())).thenReturn(executedOrder);
 
         MvcResult mvcResult = mockMvc.perform(post("/api/order/limit")
@@ -105,7 +110,7 @@ public class WebControllerTest {
 
     @Test
     public void create_limit_order_with_valid_data_but_no_executed_order_returns_success() throws Exception {
-        LimitOrderDTO limitOrder = new LimitOrderDTO(Side.SELL, 0.5, 100, "BTCZAR");
+        LimitOrderDTO limitOrder = new LimitOrderDTO(Side.SELL, 0.5, 100, BTC_ZAR);
         when(orderBookService.createLimitOrder(any())).thenReturn(null);
 
         MvcResult mvcResult = mockMvc.perform(post("/api/order/limit")
@@ -122,7 +127,7 @@ public class WebControllerTest {
 
     @Test
     public void create_limit_order_with_invalid_data_returns_bad_request() throws Exception {
-        LimitOrderDTO limitOrder = new LimitOrderDTO(Side.SELL, 0,0, "BTCZAR");
+        LimitOrderDTO limitOrder = new LimitOrderDTO(Side.SELL, 0,0, BTC_ZAR);
 
         MvcResult mvcResult = mockMvc.perform(post("/api/order/limit")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -143,14 +148,14 @@ public class WebControllerTest {
         TradeHistory tradeHistory = TradeHistory.builder().build();
         when(tradeHistoryService.getTradeHistoryBy(anyString(), anyInt(), anyInt())).thenReturn(tradeHistory);
         MvcResult mvcResult = mockMvc.perform(get("/api/BTCZAR/tradehistory")
-                        .param("skip", "5")
-                        .param("limit", "17")
+                        .param(SKIP, "5")
+                        .param(LIMIT, "17")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
         String actualResponse = mvcResult.getResponse().getContentAsString();
         assertThat(actualResponse).isEqualToIgnoringWhitespace(objectMapper.writeValueAsString(tradeHistory));
-        verify(tradeHistoryService).getTradeHistoryBy(eq("BTCZAR"), eq(5), eq(17));
+        verify(tradeHistoryService).getTradeHistoryBy(eq(BTC_ZAR), eq(5), eq(17));
     }
 
     @Test
@@ -163,14 +168,14 @@ public class WebControllerTest {
                 .andReturn();
         String actualResponse = mvcResult.getResponse().getContentAsString();
         assertThat(actualResponse).isEqualToIgnoringWhitespace(objectMapper.writeValueAsString(tradeHistory));
-        verify(tradeHistoryService).getTradeHistoryBy(eq("BTCZAR"), eq(0), eq(10));
+        verify(tradeHistoryService).getTradeHistoryBy(eq(BTC_ZAR), eq(0), eq(10));
     }
 
     @Test
     public void get_tradehistory_with_invalid_currency_pair_returns_error() throws Exception {
         MvcResult mvcResult = mockMvc.perform(get("/api/BTC@AR/tradehistory")
-                        .param("skip", "0")
-                        .param("limit", "10")
+                        .param(SKIP, "0")
+                        .param(LIMIT, "10")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andReturn();
@@ -182,8 +187,8 @@ public class WebControllerTest {
     @Test
     public void get_tradehistory_with_negative_skip_returns_error() throws Exception {
         MvcResult mvcResult = mockMvc.perform(get("/api/BTCZAR/tradehistory")
-                        .param("skip", "-1")
-                        .param("limit", "10")
+                        .param(SKIP, "-1")
+                        .param(LIMIT, "10")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andReturn();
@@ -195,8 +200,8 @@ public class WebControllerTest {
     @Test
     public void get_tradehistory_with_negative_limit_returns_error() throws Exception {
         MvcResult mvcResult = mockMvc.perform(get("/api/BTCZAR/tradehistory")
-                        .param("skip", "0")
-                        .param("limit", "-1")
+                        .param(SKIP, "0")
+                        .param(LIMIT, "-1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andReturn();
@@ -208,8 +213,8 @@ public class WebControllerTest {
     @Test
     public void get_tradehistory_with_limit_exceeding_max_returns_error() throws Exception {
         MvcResult mvcResult = mockMvc.perform(get("/api/BTCZAR/tradehistory")
-                        .param("skip", "0")
-                        .param("limit", "101")
+                        .param(SKIP, "0")
+                        .param(LIMIT, "101")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andReturn();
