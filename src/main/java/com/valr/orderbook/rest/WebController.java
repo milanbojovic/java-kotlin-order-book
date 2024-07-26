@@ -92,7 +92,7 @@ public class WebController {
     }
 
     @SuppressWarnings("ConstantValue")
-    @GetMapping("{currencyPair}/tradehistory")
+    @GetMapping("{currencyPair}/trades")
     public ResponseEntity<Object> getTradeHistory(@PathVariable String currencyPair,
                                                   @RequestParam(defaultValue = "0") @Min(0) int skip,
                                                   @RequestParam(defaultValue = "10") @Min(0) int limit) {

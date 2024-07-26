@@ -11,5 +11,4 @@ public class OrderBook {
     private List<Order> asks;
     private List<Order> bids;
     private String lastChange;
-    private long sequenceNumber;
 }

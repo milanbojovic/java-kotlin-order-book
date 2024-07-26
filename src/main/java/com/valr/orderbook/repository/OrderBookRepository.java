@@ -27,7 +27,6 @@ public class OrderBookRepository {
                 .asks(filterOrderBookList(orderBook.getAsks(), currencyPair))
                 .bids(filterOrderBookList(orderBook.getBids(), currencyPair))
                 .lastChange(orderBook.getLastChange())
-                .sequenceNumber(orderBook.getSequenceNumber())
                 .build();
     }
 
@@ -137,13 +136,11 @@ public class OrderBookRepository {
     public void insertData() {
         OrderBook orderBook = createExampleOrderBook();
         orderBook.setLastChange(Instant.now().toString());
-        orderBook.setSequenceNumber(orderBook.getSequenceNumber() + 1);
         setOrderBook(orderBook);
     }
 
     private static OrderBook createExampleOrderBook() {
         OrderBook orderBook = OrderBook.builder()
-                .sequenceNumber(1)
                 .build();
         orderBook.setAsks(new ArrayList<>(Arrays.asList(
                 new Order(Side.SELL, 0.90038334, 1186331, BTC_EUR),

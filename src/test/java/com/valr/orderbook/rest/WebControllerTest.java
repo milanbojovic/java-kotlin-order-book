@@ -203,7 +203,7 @@ public class WebControllerTest {
     public void get_tradehistory_with_valid_parameters_returns_tradehistory() throws Exception {
         TradeHistory tradeHistory = TradeHistory.builder().build();
         when(tradeHistoryService.getTradeHistoryBy(anyString(), anyInt(), anyInt())).thenReturn(tradeHistory);
-        MvcResult mvcResult = mockMvc.perform(get("/api/BTCZAR/tradehistory")
+        MvcResult mvcResult = mockMvc.perform(get("/api/BTCZAR/trades")
                         .param(SKIP, "5")
                         .param(LIMIT, "17")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -218,7 +218,7 @@ public class WebControllerTest {
     public void get_tradehistory_withhout_limit_and_skip_parames_calls_with_defaults() throws Exception {
         TradeHistory tradeHistory = TradeHistory.builder().build();
         when(tradeHistoryService.getTradeHistoryBy(anyString(), anyInt(), anyInt())).thenReturn(tradeHistory);
-        MvcResult mvcResult = mockMvc.perform(get("/api/BTCZAR/tradehistory")
+        MvcResult mvcResult = mockMvc.perform(get("/api/BTCZAR/trades")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -229,7 +229,7 @@ public class WebControllerTest {
 
     @Test
     public void get_tradehistory_with_invalid_currency_pair_returns_error() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(get("/api/BTC@AR/tradehistory")
+        MvcResult mvcResult = mockMvc.perform(get("/api/BTC@AR/trades")
                         .param(SKIP, "0")
                         .param(LIMIT, "10")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -242,7 +242,7 @@ public class WebControllerTest {
 
     @Test
     public void get_tradehistory_with_negative_skip_returns_error() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(get("/api/BTCZAR/tradehistory")
+        MvcResult mvcResult = mockMvc.perform(get("/api/BTCZAR/trades")
                         .param(SKIP, "-1")
                         .param(LIMIT, "10")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -255,7 +255,7 @@ public class WebControllerTest {
 
     @Test
     public void get_tradehistory_with_negative_limit_returns_error() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(get("/api/BTCZAR/tradehistory")
+        MvcResult mvcResult = mockMvc.perform(get("/api/BTCZAR/trades")
                         .param(SKIP, "0")
                         .param(LIMIT, "-1")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -268,7 +268,7 @@ public class WebControllerTest {
 
     @Test
     public void get_tradehistory_with_limit_exceeding_max_returns_error() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(get("/api/BTCZAR/tradehistory")
+        MvcResult mvcResult = mockMvc.perform(get("/api/BTCZAR/trades")
                         .param(SKIP, "0")
                         .param(LIMIT, "101")
                         .contentType(MediaType.APPLICATION_JSON))
