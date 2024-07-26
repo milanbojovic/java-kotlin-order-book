@@ -10,6 +10,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import com.valr.orderbook.model.LimitOrderDTO;
+
+import static com.valr.orderbook.util.TestHelper.BTC_ZAR;
 import static com.valr.orderbook.util.TestHelper.createOrderBook;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -29,18 +31,17 @@ class OrderBookServiceTest {
 
     @Test
     void get_order_book_returns_correct_data() {
-        String currencyPair = "BTCZAR";
         OrderBook expectedOrderBook = OrderBook.builder().build();
-        when(orderBookRepository.filterOrderBookBy(currencyPair)).thenReturn(expectedOrderBook);
-        OrderBook result = orderBookService.getOrderBookBy(currencyPair);
+        when(orderBookRepository.filterOrderBookBy(BTC_ZAR)).thenReturn(expectedOrderBook);
+        OrderBook result = orderBookService.getOrderBookBy(BTC_ZAR);
 
         assertEquals(expectedOrderBook, result);
-        verify(orderBookRepository, times(1)).filterOrderBookBy(currencyPair);
+        verify(orderBookRepository, times(1)).filterOrderBookBy(BTC_ZAR);
     }
 
     @Test
     void create_limit_order_creates_order_successfully() {
-        LimitOrderDTO limitOrderDTO = new LimitOrderDTO(Side.BUY, 10, 100, "BTCZAR");
+        LimitOrderDTO limitOrderDTO = new LimitOrderDTO(Side.BUY, 10, 100, BTC_ZAR);
         Order expectedOrder = new Order(limitOrderDTO);
         when(orderBookRepository.createOrder(any(Order.class))).thenReturn(expectedOrder);
 

@@ -51,7 +51,7 @@ public class TradeHistoryRepository {
         createExampleTradesList(tradeHistory);
     }
 
-    private List<Trade> createExampleTradesList(TradeHistory tradeHistory) {
+    private void createExampleTradesList(TradeHistory tradeHistory) {
         List<Trade> trades = new LinkedList<>();
         tradeHistory.setTrades(trades);
         trades.add(new Trade(getNextAvailableId(),1199677, 0.00213752, BTC_EUR, "2024-07-11T08:50:12.453Z", Side.SELL, 2564.33358104));
@@ -65,6 +65,5 @@ public class TradeHistoryRepository {
         trades.add(new Trade(getNextAvailableId(),1111115, 0.56879135, BTC_ZAR, "2022-10-11T13:44:24.571Z", Side.SELL, 570680.8748647));
         trades.add(new Trade(getNextAvailableId(),2222222, 0.56879135, BTC_ZAR, "2022-10-11T13:44:24.571Z", Side.SELL, 570680.8748647));
         trades.add(new Trade(getNextAvailableId(),4567895, 0.56879135, BTC_ZAR, "2022-10-11T13:44:24.571Z", Side.SELL, 570680.8748647));
-        return trades;
     }
 }

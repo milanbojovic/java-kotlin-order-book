@@ -11,7 +11,6 @@ public class TestHelper {
     public static final String BTC_EUR = "BTCEUR";
     public static final String BTC_ZAR = "BTCZAR";
     public static final String BTC_USD = "BTCUSD";
-    public static final String ETH_EUR = "ETHEUR";
     public static final String LTC_USD = "LTCUSD";
 
     public static OrderBook createOrderBook() {
