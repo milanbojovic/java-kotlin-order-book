@@ -58,7 +58,8 @@ mvn test
 ## API Endpoints
 
 ### User Authentication
-
+  **Default user credentials:** 
+  >{ "username": "admin", "password": "admin" }
 - **POST /api/user/login**: Authenticates a user and returns a JWT token.
     - **Request Body**:
       ```json
@@ -157,6 +158,20 @@ mvn test
         "message": "Limit order created successfully."
       }
       ```
+
+## Postman Collection
+
+A Postman collection named `Assignment API.postman_collection.json` is available in the root of the project. This collection contains various API requests that can be used to test the endpoints provided by the Order Book Service.
+
+### Setting Up Postman Environment
+
+To use the Postman collection, you need to create a Postman environment with the following variable:
+
+- `apiBaseUrl`: Set this variable to `http://localhost:8080`.
+
+Once the environment is set up, you can import the Postman collection and use it to test the APIs.
+
+[Download Postman Collection](./Assignment%20API.postman_collection.json)
 
 ## Contributing
 
