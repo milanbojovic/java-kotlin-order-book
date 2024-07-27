@@ -10,15 +10,23 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * Configuration class for setting up security configurations.
+ */
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfiguration {
     @Autowired
     private JwtRequestFilter jwtRequestFilter;
 
-    public SecurityConfiguration() {
-    }
-
+    /**
+     * Configures the security filter chain.
+     * All requests are authenticated except for the login endpoint which is used for authenticatiokn.
+     *
+     * @param http the HttpSecurity object to configure
+     * @return the configured SecurityFilterChain
+     * @throws Exception if an error occurs during configuration
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)

@@ -53,8 +53,9 @@ class UserRepositoryTest {
 
     @Test
     void login_with_null_password_returns_empty() {
-        Optional<User> user = userRepository.login("admin", null);
-        assertFalse(user.isPresent());
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> userRepository.login("admin", null));
+
+        assertEquals("rawPassword cannot be null", exception.getMessage());
     }
 
     @Test

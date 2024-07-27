@@ -13,20 +13,12 @@ public class Order implements Comparable<Order> {
     private String currencyPair;
 
     public Order(Order order) {
-        this.side = order.getSide();
-        this.quantity = order.getQuantity();
-        this.price = order.getPrice();
-        this.currencyPair = order.getCurrencyPair();
+        this(order.side, order.quantity, order.price, order.currencyPair);
     }
 
     public Order(LimitOrderDTO orderDTO) {
-        this.side = orderDTO.getSide();
-        this.quantity = orderDTO.getQuantity();
-        this.price = orderDTO.getPrice();
-        this.currencyPair = orderDTO.getCurrencyPair();
+        this(orderDTO.getSide(), orderDTO.getQuantity(), orderDTO.getPrice(), orderDTO.getCurrencyPair());
     }
-
-
 
     @Override
     public int compareTo(@NonNull Order order) {

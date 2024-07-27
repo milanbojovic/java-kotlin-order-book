@@ -94,11 +94,11 @@ public class WebControllerTest {
         MvcResult mvcResult = mockMvc.perform(post("/api/user/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new UserDTO(null, "admin"))))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isUnauthorized())
                 .andReturn();
 
         String actualResponse = mvcResult.getResponse().getContentAsString();
-        assertThat(actualResponse).contains("Invalid login request. Please provide a username and password.");
+        assertThat(actualResponse).contains("Invalid login request. Invalid username or password.");
     }
 
     @Test
@@ -106,10 +106,10 @@ public class WebControllerTest {
         MvcResult mvcResult = mockMvc.perform(post("/api/user/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new UserDTO("admin", null))))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isUnauthorized())
                 .andReturn();
         String actualResponse = mvcResult.getResponse().getContentAsString();
-        assertThat(actualResponse).contains("Invalid login request. Please provide a username and password.");
+        assertThat(actualResponse).contains("Invalid login request. Invalid username or password.");
     }
 
     @Test

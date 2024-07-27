@@ -14,15 +14,30 @@ import java.util.Optional;
 
 import static com.valr.orderbook.model.util.CurrencyPairConstants.*;
 
+/**
+ * Repository class for managing trade history.
+ */
 @Component
 @Data
 public class TradeHistoryRepository {
     TradeHistory tradeHistory;
 
+    /**
+     * Constructor for TradeHistoryRepository.
+     * Initializes the trade history.
+     */
     public TradeHistoryRepository() {
         tradeHistory = TradeHistory.builder().build();
     }
 
+    /**
+     * Filters the trade history by the specified currency pair, skipping a number of records and limiting the result.
+     *
+     * @param currencyPair the currency pair to filter by
+     * @param skip the number of records to skip
+     * @param limit the maximum number of records to return
+     * @return a filtered TradeHistory object
+     */
     public TradeHistory filterTradeHistoryBy(String currencyPair, int skip, int limit) {
         return TradeHistory.builder()
                 .trades(Optional.ofNullable(tradeHistory.getTrades()).orElse(Collections.emptyList())
@@ -34,10 +49,20 @@ public class TradeHistoryRepository {
                 .build();
     }
 
+    /**
+     * Adds a trade to the trade history.
+     *
+     * @param trade the trade to add
+     */
     public void addTrade(Trade trade) {
         tradeHistory.addTrade(trade);
     }
 
+    /**
+     * Gets the next available ID for a new trade.
+     *
+     * @return the next available ID
+     */
     public int getNextAvailableId() {
         return tradeHistory.getTrades().stream()
                 .map(Trade::getId)
@@ -46,11 +71,20 @@ public class TradeHistoryRepository {
                 .orElse(0);
     }
 
+    /**
+     * Adds initial data to the repository on startup.
+     * This is just for easier presentation purposes; for a live system, initialization would be added in unit tests.
+     */
     @PostConstruct
     public void insertData() {
         createExampleTradesList(tradeHistory);
     }
 
+    /**
+     * Creates an example list of trades and adds it to the trade history.
+     *
+     * @param tradeHistory the trade history to add the example trades to
+     */
     private void createExampleTradesList(TradeHistory tradeHistory) {
         List<Trade> trades = new LinkedList<>();
         tradeHistory.setTrades(trades);

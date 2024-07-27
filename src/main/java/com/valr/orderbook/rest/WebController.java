@@ -21,11 +21,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+/**
+ * REST controller for handling API requests related to user authentication, order book, and trade history.
+ */
 @RestController
 @RequestMapping("/api/")
 public class WebController {
     public static final String CURRENCY_PAIR_PATTERN = "[A-Za-z]{6}";
-    public static final String CURRENCY_PAIR_VALIDATION_ERROR = "Invalid currency pair. Please provide a 6 character currency pair - valid example: BTCZAR | btczar.";
+    public static final String CURRENCY_PAIR_VALIDATION_ERROR = "Invalid currency pair. Please provide a 6 character " +
+            "currency pair - valid example: BTCZAR | btczar.";
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -39,33 +43,48 @@ public class WebController {
     @Autowired
     private final TradeHistoryService tradeHistoryService;
 
+    /**
+     * Constructor for WebController.
+     *
+     * @param orderBookService the service for handling order book operations
+     * @param tradeHistoryService the service for handling trade history operations
+     * @param userService the service for handling user operations
+     * @param jwtUtil the utility for handling JWT operations
+     */
     @Autowired
-    public WebController(OrderBookService orderBookService, TradeHistoryService tradeHistoryService, UserService userService, JwtUtil jwtUtil) {
+    public WebController(OrderBookService orderBookService, TradeHistoryService tradeHistoryService,
+                         UserService userService, JwtUtil jwtUtil) {
         this.orderBookService = orderBookService;
         this.tradeHistoryService = tradeHistoryService;
         this.userService = userService;
         this.jwtUtil = jwtUtil;
     }
 
+    /**
+     * Endpoint for user login.
+     *
+     * @param userDto the user data transfer object containing login credentials
+     * @return a ResponseEntity containing a JWT token if login is successful, or an error message if login fails
+     */
     @PostMapping("/user/login")
-    public ResponseEntity<Object> loginUser(@RequestBody UserDTO userDto) {
-        if (userDto.getUsername() == null || userDto.getPassword() == null){
-            return ResponseEntity.badRequest().body(new Error(-25, "Invalid login request. " +
-                    "Please provide a username and password."));
-        }
+    public ResponseEntity<Object> loginUser(@Valid @RequestBody UserDTO userDto) {
         Optional<User> optUser = userService.login(userDto.getUsername(), userDto.getPassword());
         if (optUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Error(-24, "Invalid username " +
-                    "or password."));
-        } else {
-            User existingUser = optUser.get();
-            Map<String, String> response = new HashMap<>();
-            response.put("Bearer", jwtUtil.generateToken(existingUser.getUsername()));
-            System.out.println("User logged in: " + existingUser);
-            return ResponseEntity.ok(response.toString());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Error(-24,
+                    "Invalid login request. Invalid username or password."));
         }
+        User existingUser = optUser.get();
+        Map<String, String> response = new HashMap<>();
+        response.put("Bearer", jwtUtil.generateToken(existingUser.getUsername()));
+        return ResponseEntity.ok(response);
     }
 
+    /**
+     * Endpoint for retrieving the order book for a specific currency pair.
+     *
+     * @param currencyPair the currency pair to retrieve the order book for
+     * @return a ResponseEntity containing the order book or an error message if the currency pair is invalid
+     */
     @GetMapping("{currencyPair}/orderbook")
     public ResponseEntity<Object> getOrderBook(@PathVariable String currencyPair) {
         Pattern pattern = Pattern.compile(CURRENCY_PAIR_PATTERN);
@@ -75,6 +94,12 @@ public class WebController {
         return ResponseEntity.ok().body(orderBookService.getOrderBookBy(currencyPair));
     }
 
+    /**
+     * Endpoint for creating a limit order.
+     *
+     * @param limitOrder the limit order data transfer object containing order details
+     * @return a ResponseEntity containing a success message or an error message if the order is invalid
+     */
     @PostMapping("/order/limit")
     public ResponseEntity<Object> createLimitOrder(@Valid @RequestBody LimitOrderDTO limitOrder) {
         if (!limitOrder.getCurrencyPair().matches(CURRENCY_PAIR_PATTERN) || limitOrder.getQuantity() <= 0 ||
@@ -91,6 +116,14 @@ public class WebController {
         return ResponseEntity.ok().body("Limit order created successfully.");
     }
 
+    /**
+     * Endpoint for retrieving the trade history for a specific currency pair.
+     *
+     * @param currencyPair the currency pair to retrieve the trade history for
+     * @param skip the number of records to skip
+     * @param limit the maximum number of records to return
+     * @return a ResponseEntity containing the trade history or an error message if the input parameters are invalid
+     */
     @SuppressWarnings("ConstantValue")
     @GetMapping("{currencyPair}/trades")
     public ResponseEntity<Object> getTradeHistory(@PathVariable String currencyPair,
@@ -105,6 +138,4 @@ public class WebController {
         }
         return ResponseEntity.ok().body(tradeHistoryService.getTradeHistoryBy(currencyPair, skip, limit));
     }
-
-
 }
