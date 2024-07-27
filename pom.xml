@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.valr</groupId>
-    <artifactId>java-kotlin-order-book</artifactId>
+    <artifactId>java-order-book</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Java Kotlin OrderBook</name>
+    <name>JavaOrderBook</name>
     <properties>
         <java.version>17</java.version>
     </properties>

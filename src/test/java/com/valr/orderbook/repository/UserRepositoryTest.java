@@ -3,6 +3,7 @@ package com.valr.orderbook.repository;
 import com.valr.orderbook.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Optional;
@@ -12,11 +13,11 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 class UserRepositoryTest {
 
+    @Autowired
     private UserRepository userRepository;
 
     @BeforeEach
     void setUp() {
-        userRepository = new UserRepository();
         userRepository.insertData();
     }
 
