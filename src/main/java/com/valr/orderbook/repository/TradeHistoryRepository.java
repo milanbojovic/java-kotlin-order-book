@@ -12,7 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.valr.orderbook.model.util.CurrencyPairConstants.*;
+import static com.valr.orderbook.util.CurrencyPairConstants.*;
 
 /**
  * Repository class for managing trade history.

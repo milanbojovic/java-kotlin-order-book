@@ -1,4 +1,4 @@
-package com.valr.orderbook.model.util;
+package com.valr.orderbook.util;
 
 /**
  * Constants for various currency pairs used in the order book.

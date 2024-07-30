@@ -11,7 +11,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.valr.orderbook.model.util.CurrencyPairConstants.*;
+import static com.valr.orderbook.util.CurrencyPairConstants.*;
 
 /**
  * Repository class for managing the order book (in memory - easily switchable to database if needed).
